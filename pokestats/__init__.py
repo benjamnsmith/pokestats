@@ -18,4 +18,13 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    from . import db
+    db.init_app(app)
+
+    from . import auth
+    app.register_blueprint(auth.bp)
+
+    from . import search
+    app.register_blueprint(search.bp)
+
     return app
