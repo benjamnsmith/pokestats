@@ -20,7 +20,7 @@ def typeSearch(name):
 def printHelp(base, nm):
     if base['species']['name'] == nm:
         print("(*)", end=" ")
-    print("{:>}".format(base['species']['name'].capitalize()), end="")
+    print("{:>}".format(base['species']['name'].capitalize().replace("-", " ")), end="")
     if base['evolution_details'] and base['evolution_details'][0]['item']:
         print(" ({})".format(base['evolution_details'][0]['item']['name'].replace("-", " ")), end="")        
     print()
@@ -33,6 +33,7 @@ def printHelp(base, nm):
 
 def evolutionPrinter(info, nm):
     print("\nEvolution chain")
+    print("---------------")
     r3 = requests.get(info)
     ev_dat = json.loads(r3.text)
     
@@ -41,7 +42,6 @@ def evolutionPrinter(info, nm):
 
 
 def nameSearch(name):
-    name = input(">> ").replace(" ", "-").lower()
 
     r1 = requests.get("https://pokeapi.co/api/v2/pokemon/{}/".format(name))
     r2 = requests.get("https://pokeapi.co/api/v2/pokemon-species/{}/".format(name))
@@ -52,10 +52,10 @@ def nameSearch(name):
     except:
         print("Could not get data for '{}'".format(name))
         return
-    print(dat.keys())
-    print(dat_2.keys())
+    #print(dat.keys())
+    #print(dat_2.keys())
 
-    print("\n========== {} SUMMARY ==========".format(dat['name'].upper()))
+    print("\n========== {} SUMMARY ==========".format(dat['name'].upper().replace("-", " ")))
     print("{} is a generation {} {}-type pokemon.".format(dat['name'].capitalize().replace("-", " "), dat_2['generation']['name'].split("-")[1].upper(), dat['types'][0]['type']['name']))
 
     evolutionPrinter(dat_2['evolution_chain']['url'], dat['name'])
@@ -69,29 +69,59 @@ def nameSearch(name):
     print()
 
     print("Abilities")
+    print("---------")
     prev = ""
     for i in range(len(dat['abilities'])):
         if (dat['abilities'][i]['ability']['name'] != prev):
-            print(dat['abilities'][i]['ability']['name'].replace("-", " ").capitalize())
+            print(dat['abilities'][i]['ability']['name'].replace("-", " ").capitalize(), end = "")
+            if dat['abilities'][i]['is_hidden']:
+                print(" **HIDDEN**", end="")
+            print()
             ability_dat = json.loads(requests.get(dat['abilities'][i]['ability']['url']).text)
             if ability_dat['effect_entries']:
                 print("  {}".format(ability_dat['effect_entries'][1]['short_effect']))
             prev = dat['abilities'][i]['ability']['name']
-            if dat['abilities'][i]['is_hidden']:
-                print(" *this is a hidden ability!*")
+            
+
+def moveSearch(name):
+    r1 = requests.get("https://pokeapi.co/api/v2/move/{}/".format(name))
+    if not r1.ok:
+        print(r1.status_code)
+        return
+
+    dat = json.loads(r1.text)
+
+    print("\n========== {} SUMMARY ==========".format(dat['name'].upper().replace("-", " ")))
+    #print(dat.keys())
+    # for key in dat:
+    #     if key == "effect_entries" or key == "learned_by_pokemon" or key == "flavor_text_entries" :
+    #         continue
+    #     print(key, ":", dat[key])
+
+    print("Damage:", dat['power'])
+    print("Accuracy:", dat['accuracy'])
+    print("PP:", dat['pp'])
+    print("Description:", dat['effect_entries'][0]['effect'].replace('$effect_chance', str(dat['effect_chance'])))
 
 
+    
 
 def main():
     print("\n========== POKEMON SEARCH ==========")
+    print("Enter a query formatted as below:")
+    print("  - name <pokemonName>")
+    print("  - type <typeName>")
+    print("  - move <moveName>")
+    print("  - suggest <pokemonName> <teraType> (BETA)")
     while 1:
-        print("\nEnter 'name' or 'type' followed by the name or type you'd like to search")
         inp = input(">> ").split()
 
         if inp[0] == "type":
             typeSearch(inp[1].lower())
         elif inp[0] == "name":
-            nameSearch(inp[1:].join("-"))
+            nameSearch("-".join(inp[1:]).lower())
+        elif inp[0] == "move":
+            moveSearch("-".join(inp[1:]).lower())
         elif inp[0] == "q":
             break
         else:
