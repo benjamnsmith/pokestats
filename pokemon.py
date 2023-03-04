@@ -15,9 +15,11 @@ def typeSearch(name):
             print()
 
     print()
-    print("There are {} {} type pokemon\n".format(len(dat['pokemon']), dat['name']))
+    print("There are {} {} type pokemon".format(len(dat['pokemon']), dat['name']))
+    print()
 
-def printHelp(base, nm):
+
+def evPrintHelp(base, nm):
     if base['species']['name'] == nm:
         print("(*)", end=" ")
     print("{:>}".format(base['species']['name'].capitalize().replace("-", " ")), end="")
@@ -28,7 +30,7 @@ def printHelp(base, nm):
         return
     else:
         for i in range(len(base['evolves_to'])):
-            printHelp(base['evolves_to'][i], nm)
+            evPrintHelp(base['evolves_to'][i], nm)
 
 
 def evolutionPrinter(info, nm):
@@ -38,7 +40,7 @@ def evolutionPrinter(info, nm):
     ev_dat = json.loads(r3.text)
     
     base = ev_dat['chain']
-    printHelp(base, nm)
+    evPrintHelp(base, nm)
 
 
 def nameSearch(name):
@@ -81,6 +83,7 @@ def nameSearch(name):
             if ability_dat['effect_entries']:
                 print("  {}".format(ability_dat['effect_entries'][1]['short_effect']))
             prev = dat['abilities'][i]['ability']['name']
+    print()
             
 
 def moveSearch(name):
@@ -102,18 +105,22 @@ def moveSearch(name):
     print("Accuracy:", dat['accuracy'])
     print("PP:", dat['pp'])
     print("Description:", dat['effect_entries'][0]['effect'].replace('$effect_chance', str(dat['effect_chance'])))
+    print()
 
-
-    
-
-def main():
-    print("\n========== POKEMON SEARCH ==========")
+def printHelpInfo():
     print("Enter a query formatted as below:")
     print("  - name <pokemonName>")
     print("  - type <typeName>")
     print("  - move <moveName>")
     print("  - suggest <pokemonName> <teraType> (BETA)")
+    print("  - help")
     print("  - quit")
+
+
+def main():
+    print("\n========== POKEMON SEARCH ==========")
+    printHelpInfo()
+
     while 1:
         inp = input(">> ").split()
 
@@ -125,6 +132,8 @@ def main():
             moveSearch("-".join(inp[1:]).lower())
         elif inp[0] in ['q', 'exit', 'bye', 'quit']:
             break
+        elif inp[0] in ['help', 'h']:
+            printHelpInfo()
         else:
             print("choice not recognized")
 
