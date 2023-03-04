@@ -113,6 +113,7 @@ def main():
     print("  - type <typeName>")
     print("  - move <moveName>")
     print("  - suggest <pokemonName> <teraType> (BETA)")
+    print("  - quit")
     while 1:
         inp = input(">> ").split()
 
@@ -122,7 +123,7 @@ def main():
             nameSearch("-".join(inp[1:]).lower())
         elif inp[0] == "move":
             moveSearch("-".join(inp[1:]).lower())
-        elif inp[0] == "q":
+        elif inp[0] in ['q', 'exit', 'bye', 'quit']:
             break
         else:
             print("choice not recognized")
