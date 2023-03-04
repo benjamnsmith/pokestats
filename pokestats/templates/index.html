@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}POKESEARCH{% endblock %}</h1>
+  {% if g.user %}
+    <p>Logged in</p>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <label for="search_query"></label>
+        <input placeholder="Search here" name="searchbar"></input>
+        <button type="submit" value="Search"></button>
+    </form>
+
+    {% for data in results %}
+        <p>{{ data['damage_relations'] }}</p>
+    {% endfor %}
+  
+{% endblock %}
